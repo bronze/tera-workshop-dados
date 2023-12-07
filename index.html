@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tera Workshop</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+    <script src="https://js.sentry-cdn.com/9c5feb5b248b49f79a585804c259febc.min.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      mapboxgl.accessToken = "pk.eyJ1IjoiY2FybG9zYnJvbnplIiwiYSI6ImNsb3l4YzVvMTA3M24yam1wZWg3ZWsyMWoifQ.8JFd79LIOJUEIXOl-LMiUw";
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v11",
+        center: [-46.667, -23.585], // starting position [lng, lat]
+        zoom: 10,
+      });
+      map.on("load", () => {
+        map.addSource("janeiro", {
+          type: "geojson",
+          data: "./janeiro.geojson",
+        });
+        map.addSource("fevereiro", {
+          type: "geojson",
+          data: "./fevereiro.geojson",
+        });
+        map.addLayer(
+          {
+            id: "janeiro-heat",
+            type: "heatmap",
+            source: "janeiro",
+          },
+          "waterway-label"
+        );
+        map.addLayer(
+          {
+            id: "fevereiro-heat",
+            type: "heatmap",
+            source: "fevereiro",
+            paint: {
+              // increase intensity as zoom level increases
+              "heatmap-intensity": {
+                stops: [
+                  [11, 1],
+                  [15, 3],
+                ],
+              },
+              // use sequential color palette to use exponentially as the weight increases
+              "heatmap-color": [
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0,
+                "rgba(236,222,239,0)",
+                0.2,
+                "rgb(208,209,230)",
+                0.4,
+                "rgb(166,189,219)",
+                0.6,
+                "rgb(103,169,207)",
+                0.8,
+                "rgb(28,144,153)",
+              ],
+              // increase radius as zoom increases
+              "heatmap-radius": {
+                stops: [
+                  [11, 15],
+                  [15, 20],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+      });
+    </script>
+  </body>
+</html>
